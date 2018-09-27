@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>待办流程</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <style type="text/css">
+    html,
+    body {
+        height: 100%;
+    }
+    </style>
+</head>
+
+<body>
+    <header id="header" class="aui-bar aui-bar-nav">
+        <a class="aui-pull-left aui-btn" tapmode onclick="api.closeWin();">
+		        <span class="aui-iconfont aui-icon-left"></span>
+		 </a>
+        <div class="aui-title" id="title">
+            <!-- 请假申请 -->
+        </div>
+		<a class="aui-pull-right aui-btn" tapmode onclick="moreOperator()">
+		        <span class="aui-iconfont aui-icon-more"></span>
+		 </a>
+    </header>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+var userId;
+var processInstanceId;
+var key;
+apiready = function() {
+    api.parseTapmode();
+    var header = $api.byId('header');
+    $api.fixStatusBar(header);
+    var headerPos = $api.offset(header);
+    userId = $api.getStorage("userId");
+    var user = $api.getStorage("user");
+     var pageParam = api.pageParam
+     processInstanceId=pageParam.processInstanceId;
+     $api.byId('title').innerHTML=pageParam.businessType;
+     key=pageParam.key;
+   // 初始化
+ api.openFrame({
+ 	name:key+'todo',
+ 	url:'./'+key+'todo.html',
+	bounces: false,
+	slidBackEnabled: 'false',
+	pageParam:{
+		processInstanceId:processInstanceId
+	},
+	rect: {
+		  x: 0,
+          y: headerPos.h,
+          w: 'auto',
+          h: api.winHeight - headerPos.h
+	}
+ })   
+}
+
+function moreOperator(){
+  api.execScript({
+        frameName: key+'todo',
+        script: 'showPopup("top-right");'
+    });	
+}
+
+
+</script>
+
+</html>

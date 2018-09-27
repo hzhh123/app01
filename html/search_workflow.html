@@ -1,0 +1,206 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>搜索流程</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+      <link rel="stylesheet" type="text/css" href="../css/aui-pull-refresh.css" />
+    <style type="text/css">
+        html,body{height: 100%;}
+    </style>
+</head>
+
+<body>
+    <header id="header" class="aui-bar aui-bar-nav">
+    	 <a class="aui-pull-left aui-btn" onclick="api.closeWin();">
+		        <span class="aui-iconfont aui-icon-left"></span>
+		  </a>
+		  <div class="aui-title">
+		  	流程
+		  </div>
+        <div class="aui-searchbar" id="search">
+            <div class="aui-searchbar-input aui-border-radius">
+                <i class="aui-iconfont aui-icon-search"></i>
+                <input type="search" placeholder="请输入流水号或流程标题" id="search-input">
+                <div class="aui-searchbar-clear-btn">
+                    <i class="aui-iconfont aui-icon-close"></i>
+                </div>
+            </div>
+            <div class="aui-searchbar-btn" tapmode>取消</div>
+        </div>
+    </header>
+    <!-- /header -->
+      <section class="aui-refresh-content" id="mainbox">
+		<div class="aui-content">
+	            <div id="demo">
+	               
+	            </div>
+	    </div>
+    </section>           
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/aui-popup-new.js"></script>
+<script src="../script/aui-pull-refresh.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+var type;	
+var page = 1;
+var count = 0;
+var userId;
+apiready = function() {
+    api.parseTapmode();
+    var header = $api.byId('header');
+    $api.fixStatusBar(header);   
+    var headerPos = $api.offset(header);
+    $api.css(mainbox,'height:'+(api.winHeight-headerPos.h)+'px')
+  var pageParam = api.pageParam;
+	type=pageParam.type;    
+     userId=$api.getStorage("userId");
+}
+  var searchBar = document.querySelector(".aui-searchbar");
+    var searchBarInput = document.querySelector(".aui-searchbar input");
+    var searchBarBtn = document.querySelector(".aui-searchbar .aui-searchbar-btn");
+    var searchBarClearBtn = document.querySelector(".aui-searchbar .aui-searchbar-clear-btn");
+    if(searchBar){
+        searchBarInput.onclick = function(){
+            searchBarBtn.style.marginRight = 0;
+        }
+        searchBarInput.oninput = function(){
+            if(this.value.length){
+                searchBarClearBtn.style.display = 'block';
+                searchBarBtn.classList.add("aui-text-info");
+                searchBarBtn.textContent = "搜索";
+            }else{
+                searchBarClearBtn.style.display = 'none';
+                searchBarBtn.classList.remove("aui-text-info");
+                searchBarBtn.textContent = "取消";
+            }
+        }
+    }
+    searchBarClearBtn.onclick = function(){
+        demo.innerHTML='';
+        this.style.display = 'none';
+        searchBarInput.value = '';
+        searchBarBtn.classList.remove("aui-text-info");
+        searchBarBtn.textContent = "取消";
+    }
+    searchBarBtn.onclick = function(){
+        var keywords = searchBarInput.value;
+        if(keywords.length){
+         	initAjax(keywords);
+            searchBarInput.blur();
+            document.getElementById("search-keywords").textContent = keywords;
+        }else{
+
+            this.style.marginRight = "-"+this.offsetWidth+"px";
+            searchBarInput.value = '';
+            searchBarInput.blur();
+        }
+    }  
+
+   function initAjax(keywords){
+ 	  api.showProgress();           
+   	  var wrap = document.getElementById("demo");
+   	  wrap.innerHTML='';
+   	  var url=host+'/app/getTodoTask';
+   	  var divLabel='<div class="aui-label aui-label-info">待办</div>';
+   	  if(type==1){
+   	  	url=host+'/app/getMyComplete';
+   	  	divLabel='<div class="aui-label">已办</div>';
+   	  }
+		api.ajax({
+		        url:url,
+		        method: 'post',
+		        data: {
+		            values: {
+		                userId: userId,
+		                page: page,
+		                rows: 10,
+		                name:keywords
+		            }
+		        }
+		    }, function(ret, err) {
+		    	api.hideProgress();
+		        if (ret != null) {
+		                if (ret.rows.length > 0) {
+		                    page++;
+		                    count += ret.rows.length;
+		                    for (var i = 0; i < ret.rows.length; i++) {
+		                        var html = '<div class="aui-card-list"  tapmode onclick="jumpTodo(\''+ret.rows[i].businessKey+'\',\''+ret.rows[i].businessType+'\',\''+ret.rows[i].processInstanceId+'\')"  style="margin-bottom:0px;border-bottom:1px  solid #efefef">' +
+		                            '<div class="aui-card-list-content-padded">'+divLabel+'【' +
+		                               ret.rows[i].processInstanceId+'】'+
+		                            ret.rows[i].title +
+		                            '</div>' +
+		                            '</div>';
+		                        wrap.insertAdjacentHTML('afterbegin', html);
+		                    }
+		            }else{
+                        showToast('无数据');
+                    }
+		        } else {
+		            alert(JSON.stringify(err));
+		        }
+		    });   	 
+   }
+
+   var pullRefresh = new auiPullToRefresh({
+    container: document.querySelector('.aui-refresh-content'),
+    triggerDistance: 100
+}, function(ret) {
+    if (ret.status == "success") {
+        setTimeout(function() {
+            var wrap = document.getElementById("demo");
+		   	  var url=host+'/app/getTodoTask';
+		   	  var divLabel='<div class="aui-label aui-label-info">待办</div>';
+		   	  if(type==1){
+		   	  	url=host+'/app/getMyComplete';
+		   	  	divLabel='<div class="aui-label">已办</div>';
+		   	  }
+            api.ajax({
+                url: url,
+                method: 'post',
+                data: {
+                    values: {
+                        userId: userId,
+                        page: page,
+                        rows: 10,
+                        name:searchBarInput.value
+                    }
+                }
+            }, function(ret, err) {
+                pullRefresh.cancelLoading(); //刷新成功后调用此方法隐藏
+                if (ret != null) {
+                    if (count < ret.total) {
+                        if (ret.rows.length > 0) {
+                            page++;
+                            count += ret.rows.length;
+                            for (var i = 0; i < ret.rows.length; i++) {
+                                var html = '<div class="aui-card-list" tapmode onclick="jumpTodo(\''+ret.rows[i].businessKey+'\',\''+ret.rows[i].businessType+'\',\''+ret.rows[i].processInstanceId+'\')"    style="margin-bottom:0px;border-bottom:1px solid #efefef">' +
+                                    '<div class="aui-card-list-content-padded">'+divLabel+'【' +
+                                       ret.rows[i].processInstanceId+'】'+
+                                    ret.rows[i].title +
+                                    '</div>' +
+                                    '</div>';
+                                wrap.insertAdjacentHTML('afterbegin', html);
+                            }
+                        }
+                    }else{
+                        showToast('无数据');
+                    }
+                } else {
+                    alert(JSON.stringify(err));
+                }
+            });
+        }, 1500)
+    }
+})  
+
+function jumpTodo(key,businessType,processInstanceId){
+    openWin('todo','./todo.html',{key:key,businessType:businessType,processInstanceId:processInstanceId});
+}   
+</script>
+
+</html>

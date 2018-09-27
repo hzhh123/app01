@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>个人信息</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <style>
+    html,
+    body {
+        width: 100%;
+    }
+    </style>
+</head>
+
+<body>
+    <header id="header" class="aui-bar aui-bar-nav">
+        <a class="aui-btn aui-pull-left" onclick="api.closeWin();"><i class="aui-iconfont aui-icon-left"></i></a>
+        <div class="aui-title">个人信息</div>
+        <a href="" class="aui-btn aui-pull-right">
+        	<i class="aui-iconfont aui-icon-more"></i>
+        </a>
+    </header>
+    <div id="mainbox">
+    <section class="aui-content">
+        <ul class="aui-list aui-list-in aui-margin-b-15">
+            <li class="aui-list-item" style="padding-top: 5px;padding-bottom: 5px;">
+                <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-title">头像</div>
+                    <div class="aui-list-item-right" style="width:3rem;">
+                        <img src="../image/demo1.png" class="aui-img-round">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-title">姓名</div>
+                    <div class="aui-list-item-right" id="name">
+                       
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-title">性别</div>
+                    <div class="aui-list-item-right" id="sex">
+                        
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-title">手机</div>
+                    <div class="aui-list-item-right" id="phone">
+                        
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <ul class="aui-list aui-list-in">
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-title">部门</div>
+                    <div class="aui-list-item-right" id="org">
+                        
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-title">职位</div>
+                    <div class="aui-list-item-right" id="position">
+                        
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </section>
+</div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+apiready = function() {
+    api.parseTapmode();
+    var header = $api.byId('header');
+     $api.fixStatusBar(header);
+    var headerPos = $api.offset(header);
+    $api.css(mainbox, 'height:' + (api.winHeight - headerPos.h) + 'px');
+    //获取参数
+    var pageParam = api.pageParam;
+	userId=pageParam.userId;
+	api.showProgress({
+		title:'正在加载...',
+		modal:true
+	});
+    api.ajax({
+        url: host+'/app/getUserById/'+userId,
+        method: 'post'
+    },function(ret, err){
+    	 api.hideProgress();
+        if (ret!=null) {
+           $api.byId('name').innerHTML=ret.name;
+           if(ret.sex==1){
+            	$api.byId('sex').innerHTML='男';
+           }
+			if(ret.sex==0){
+            	$api.byId('sex').innerHTML='女';
+           }           
+           $api.byId('phone').innerHTML=ret.phone;
+           $api.byId('org').innerHTML=(ret.orgName==null?'未设置':ret.orgName);
+           $api.byId('position').innerHTML=(ret.positionName==null?'未设置':ret.positionName);
+        } else {
+            alert( JSON.stringify( err ) );
+        }
+    });
+};
+
+
+</script>
+
+</html>

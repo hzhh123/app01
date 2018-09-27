@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>已办流程</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui-pull-refresh.css" />
+    <style>
+    html,
+    body {
+        width: 100%;
+    }
+    </style>
+</head>
+
+<body>
+    <section class="aui-refresh-content">
+        <div class="aui-content">
+            <div id="demo">
+               
+            </div>
+        </div>
+    </section>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script src="../script/aui-pull-refresh.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+var page = 1;
+var count = 0;
+var userId;
+apiready = function() {
+    api.parseTapmode();
+    userId=$api.getStorage("userId");
+     var wrap = document.getElementById("demo")
+    api.ajax({
+        url: host+'/app/getMyComplete',
+        method: 'post',
+        data: {
+            values: {
+                userId: userId,
+                page: page,
+                rows: 10
+            }
+        }
+    }, function(ret, err) {
+        if (ret != null) {
+                if (ret.rows.length > 0) {
+                    page++;
+                    count += ret.rows.length;
+                    for (var i = 0; i < ret.rows.length; i++) {
+                        var html = '<div class="aui-card-list" style="margin-bottom:0px;border-bottom:1px solid #efefef">' +
+                            '<div class="aui-card-list-content-padded"><div class="aui-label ">已办</div>【' +
+                              ret.rows[i].processInstanceId+'】'+
+                            ret.rows[i].title +
+                            '</div>' +
+                            '</div>';
+                        wrap.insertAdjacentHTML('afterbegin', html);
+                    }
+            }
+        } else {
+            alert(JSON.stringify(err));
+        }
+    });
+};
+var pullRefresh = new auiPullToRefresh({
+    container: document.querySelector('.aui-refresh-content'),
+    triggerDistance: 100
+}, function(ret) {
+    if (ret.status == "success") {
+        setTimeout(function() {
+            var wrap = document.getElementById("demo")
+            //var lis = wrap.querySelectorAll('.aui-card-list');
+            api.ajax({
+                url: host+'/app/getMyComplete',
+                method: 'post',
+                data: {
+                    values: {
+                        userId: userId,
+                        page: page,
+                        rows: 10
+                    }
+                }
+            }, function(ret, err) {
+                pullRefresh.cancelLoading(); //刷新成功后调用此方法隐藏
+                if (ret != null) {
+                    if (count < ret.total) {
+                        if (ret.rows.length > 0) {
+                            page++;
+                            count += ret.rows.length;
+                            for (var i = 0; i < ret.rows.length; i++) {
+                                var html = '<div class="aui-card-list" style="margin-bottom:0px;border-bottom:1px solid #efefef">' +
+                                    '<div class="aui-card-list-content-padded"><div class="aui-label ">已办</div>【' +
+                                      ret.rows[i].processInstanceId+'】'+
+                                    ret.rows[i].title +
+                                    '</div>' +
+                                    '</div>';
+                                wrap.insertAdjacentHTML('afterbegin', html);
+                            }
+                        }
+                    }
+                } else {
+                    alert(JSON.stringify(err));
+                }
+            });
+        }, 1500)
+    }
+})
+</script>
+
+</html>

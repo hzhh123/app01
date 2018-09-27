@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>登录</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <style>
+    html,
+    body {
+        width: 100%;
+    }
+    </style>
+</head>
+
+<body>
+    <header id="header" class="aui-bar aui-bar-nav">
+        <div>登录</div>
+    </header>
+    <!-- /header -->
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+            <!--   <li class="aui-list-header"></li> -->
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-mobile"></i>
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" placeholder="请输入用户名" id="username">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-lock"></i>
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="password" placeholder="请输入密码" id="pass">
+                    </div>
+                    <div class="aui-list-item-label-icon" tapmode onmousedown="clickMouseDown()" onmouseup="clickMouseUp()">
+                        <i class="aui-iconfont aui-icon-display"></i>
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-center aui-list-item-btn">
+                    <div class="aui-btn aui-btn-info aui-margin-r-5" tapmode onclick="userLogin()">
+                        登录</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+apiready = function() {
+    api.parseTapmode();
+    //清除密码
+    $api.byId('pass').value = '';
+
+    //判断用户是否已存在本地(已登录)
+    var userId=$api.getStorage('userId');
+    var user=$api.getStorage('user');
+    if(user!=undefined && userId!=null){
+         var delay = 0;
+            if (api.systemType != 'ios') {
+                delay = 300;
+            }
+            api.openWin({
+                name: 'main',
+                url: '../index.html',
+                bounces: false,
+                delay: delay,
+                slidBackEnabled: true,
+                vScrollBarEnabled: false
+            });        
+    }
+};
+// function clear(){
+//     var allInput = document.body.getElementsByTagName("input");
+//     for (var i = 0; i < allInput.length; i++) {
+//         var item = allInput[i];
+//         if (item.type == "text") {
+//             item.value = "";
+//         }
+//     }
+// }
+function clickMouseDown() {
+    var pass = $api.byId('pass');
+    pass.type = "text";
+}
+
+function clickMouseUp() {
+    var pass = $api.byId('pass');
+    pass.type = "password";
+}
+
+function userLogin() {
+    var username = $api.byId('username').value;
+    var pass = $api.byId('pass').value;
+    if (username == '') {
+        alert('用户名不能为空！');
+        return;
+    }
+    if (pass == '') {
+        alert('密码名不能为空！');
+        return;
+    }
+    api.showProgress();
+    api.ajax({
+        url: host+'/app/login',
+        method: 'post',
+        data: {
+            values: {
+                username: username,
+                password: pass
+            }
+        }
+    }, function(ret, err) {
+        api.hideProgress(); //隐藏加载进度框
+        if (ret.success) {
+            //本地存储用户信息
+            $api.setStorage("userId",ret.obj.id);
+            $api.setStorage("user",ret.obj);
+            var delay = 0;
+            if (api.systemType != 'ios') {
+                delay = 300;
+            }
+              // api.closeWin(); 
+           // window.location.reload();
+            api.openWin({
+                name: 'main',
+                url: '../index.html',
+                bounces: false,
+                delay: delay,
+                slidBackEnabled: true,
+                vScrollBarEnabled: false
+            });
+        } else {
+            alert(ret.msg);
+        }
+    });
+}
+ function clearValue(){
+        $api.byId('pass').value = '';
+        $api.byId('username').value = '';
+    }
+</script>
+
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>发起流程</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <style type="text/css">
+    html,
+    body {
+        height: 100%;
+    }
+    </style>
+</head>
+
+<body>
+    <header id="header" class="aui-bar aui-bar-nav">
+        <a class="aui-pull-left aui-btn" tapmode onclick="api.closeWin();">
+		        <span class="aui-iconfont aui-icon-left"></span>
+		  </a>
+        <div class="aui-title">
+            请假申请
+        </div>
+    </header>
+    <!-- /header -->
+    <div class="aui-content aui-margin-b-15" id="mainbox">
+        <ul class="aui-list aui-form-list">
+        	<li class="aui-list-header"><span style="color:red">* 表示必填</span></li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        申请人
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" placeholder="姓名" id="userName"  readonly="readonly">
+                    </div>
+                </div>
+            </li>
+ 		  <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        标题
+                    </div>
+                    <div class="aui-list-item-input">
+                        <textarea placeholder="请输入" id="title"></textarea>
+                    </div>
+                </div>
+            </li>            
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                       请假时间<span style="color:red">*</span>
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="date" placeholder="yyyy-MM-dd" id="leaveDate" style="padding: 0.5rem 0;">
+                    </div>
+                </div>
+            </li><li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                       请假天数<span style="color:red">*</span>
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" placeholder="请输入" id="days">
+                    </div>
+                </div>
+            </li>
+           
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        请假原因<span style="color:red">*</span>
+                    </div>
+                    <div class="aui-list-item-input">
+                        <textarea placeholder="请输入" id="reason"></textarea>
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-center aui-list-item-btn">
+                    <div class="aui-btn aui-btn-info aui-margin-r-5" tapmode onclick="submit()">提交</div>
+                    <div class="aui-btn aui-btn-danger aui-margin-l-5" tapmode onclick="api.closeWin()">取消</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+var userId;
+apiready = function() {
+    api.parseTapmode();
+    var header = $api.byId('header');
+    $api.fixStatusBar(header);
+    var headerPos = $api.offset(header);
+    $api.css(mainbox, 'height:' + (api.winHeight - headerPos.h) + 'px');
+    userId = $api.getStorage("userId");
+    var user = $api.getStorage("user");
+     var pageParam = api.pageParam
+    var title=pageParam.name;
+    $api.byId('userName').value=user.name;
+   // $api.byId('title').innerHTML=title;
+}
+
+function submit(){
+	var leaveDate=$api.byId('leaveDate').value;
+	var days=$api.byId('days').value;
+	var reason=$api.byId('reason').value;
+	var userName=$api.byId('userName').value;
+	var title=$api.byId('title').value;
+	if(leaveDate==''){
+		alert("请假日期不能为空！");
+		return;
+	}
+	if(days==''){
+		alert("请假天数不能为空！");
+		return;
+	}else{
+		if(!isNumber(days)){
+		  alert("请假天数只能是数字！");
+		return;			
+		}
+	}
+	if(reason==''){
+		alert("请假原因不能为空！");
+		return;
+	}	
+	api.ajax({
+	    url: host+'/app/leave/startProcessInstance',
+	    method: 'post',
+	    data: {
+	        values: { 
+	            userid: userId,
+	            userName:userName,
+	            leaveDate:leaveDate,
+	            days:days,
+	            reason:reason,
+	            title:title
+	        }
+	    }
+	},function(ret, err){
+	    if (ret.success) {
+	        closeWin();
+	    } else {
+	        alert(ret.msg);
+	    }
+	});
+}
+
+</script>
+
+</html>

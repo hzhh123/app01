@@ -1,0 +1,246 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>待办流程</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <style type="text/css">
+    html,
+    body {
+        height: 100%;
+    }
+    </style>
+</head>
+
+<body>
+   
+    <!-- /header -->
+    <div class="aui-content aui-margin-b-15" id="mainbox">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        申请人
+                    </div>
+                    <div class="aui-list-item-input">
+                    	<input type="hidden" id="userid">
+                        <input type="text" placeholder="姓名" id="userName"  readonly="readonly">
+                    </div>
+                </div>
+            </li>
+ 		  <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        标题
+                    </div>
+                    <div class="aui-list-item-input">
+                        <textarea placeholder="请输入" id="title" readonly="readonly"></textarea>
+                    </div>
+                </div>
+            </li>            
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                       请假时间
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="date" placeholder="yyyy-MM-dd" id="leaveDate" style="padding: 0.5rem 0;" readonly="readonly">
+                    </div>
+                </div>
+            </li><li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                       请假天数
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" placeholder="请输入" id="days" readonly="readonly">
+                    </div>
+                </div>
+            </li>
+           
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        请假原因
+                    </div>
+                    <div class="aui-list-item-input">
+                        <textarea placeholder="请输入" id="reason" readonly="readonly"></textarea>
+                    </div>
+                </div>
+            </li> 
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                       审批
+                    </div>
+
+                    <div class="aui-list-item-input">
+                    	 <label><input class="aui-radio" type="radio" name="radio2" checked> 同意</label>
+                       <label><input class="aui-radio" type="radio" name="radio2"> 不同意</label>
+                        <textarea placeholder="请输入" id="comment"></textarea>
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-center aui-list-item-btn">
+                    <div class="aui-btn aui-btn-info " tapmode onclick="submit()">提交</div>
+                    <div class="aui-btn aui-btn-danger aui-margin-l-5" tapmode onclick="api.closeWin()">取消</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript" src="../script/aui-popup-new.js" ></script>
+<script type="text/javascript">
+var userId;
+var processInstanceId;
+ var popup = new auiPopup();
+apiready = function() {
+    api.parseTapmode();
+    userId = $api.getStorage("userId");
+    var user = $api.getStorage("user");
+     var pageParam = api.pageParam
+     processInstanceId=pageParam.processInstanceId;
+    $api.byId('userName').value=user.name;
+   // $api.byId('title').innerHTML=title;
+   // 初始化值
+   setValue();
+}
+/**
+ * 转办
+ * [doTransferTask description]
+ * @return {[type]} [description]
+ */
+function doTransferTask(){
+	alert(1)
+}
+/**
+ * 委托
+ * [doDelegateTask description]
+ * @return {[type]} [description]
+ */
+function doDelegateTask(){
+	alert(1)
+}
+/**
+ * 回退
+ * [fallbackFun description]
+ * @return {[type]} [description]
+ */
+function fallbackFun(){
+	alert(1)
+}
+
+/**
+ * 前进
+ * [forwardFun description]
+ * @return {[type]} [description]
+ */
+function forwardFun(){
+	alert(1)
+}
+/**
+ * 查看流程图
+ * [viewprocessInstanceMonitorFun description]
+ * @return {[type]} [description]
+ */
+function viewprocessInstanceMonitorFun(){
+	openWin('viewflowimg','./viewflowimg.html',{processInstanceId:processInstanceId});
+}
+/**
+ * 查看历史批注
+ * [queryHistoryCommentFun description]
+ * @return {[type]} [description]
+ */
+function queryHistoryCommentFun(){
+
+}
+function showPopup(location){
+        popup.init({
+            frameBounces:true,//当前页面是否弹动，（主要针对安卓端）
+            location:location,//位置，top(默认：顶部中间),top-left top-right,bottom,bottom-left,bottom-right
+            buttons:[{
+                image:'../image/share/wx.png',
+                text:'<a tapmode onclick="doTransferTask()" style="color:#333">转办</a>',
+            },{
+                image:'../image/share/wx-circle.png',
+                text:'<a tapmode onclick="doDelegateTask()" style="color:#333">委托</a>',
+            },{
+                image:'../image/share/qq.png',
+                text:'<a tapmode onclick="forwardFun()" style="color:#333">前进</a>',
+            },{
+                image:'../image/share/qzone.png',
+                text:'<a tapmode onclick="fallbackFun()" style="color:#333">回退</a>',
+                value:'qq-qzone'
+            },{
+                image:'../image/share/sina-weibo.png',
+                text:'<a tapmode onclick="viewprocessInstanceMonitorFun()" style="color:#333">查看流程图</a>'
+            },{
+                image:'../image/share/sina-weibo.png',
+                text:'<a tapmode onclick="queryHistoryCommentFun()" style="color:#333">查看审批</a>'
+            }],
+        },function(ret){
+            if(ret){
+                document.getElementById("button-index").textContent = ret.buttonIndex;
+                document.getElementById("button-value").textContent = ret.buttonValue;
+            }
+        })
+    }
+function setValue(){
+	api.showProgress();
+	api.ajax({
+	    url: host+'/app/leave/getOne',
+	    method: 'post',
+	    data: {
+	        values: { 
+	            processInstanceId: processInstanceId
+	        }
+	    }
+	},function(ret, err){
+		api.hideProgress();
+	    if (ret.success) {
+	       var data=ret.obj;
+			$api.byId('userid').value=data.userid;
+			$api.byId('userName').value=data.userName;
+			$api.byId('title').value=data.title;
+			$api.byId('leaveDate').value=data.leaveDate;
+			$api.byId('days').value=data.days;
+			$api.byId('reason').value=data.reason;	       
+	    } else {
+	        alert( JSON.stringify( err ) );
+	    }
+	});
+}
+function submit(){
+	
+	api.ajax({
+	    url: host+'/app/leave/startProcessInstance',
+	    method: 'post',
+	    data: {
+	        values: { 
+	            userid: userId,
+	            userName:userName,
+	            leaveDate:leaveDate,
+	            days:days,
+	            reason:reason,
+	            title:title
+	        }
+	    }
+	},function(ret, err){
+	    if (ret.success) {
+	        closeWin();
+	    } else {
+	        alert(ret.msg);
+	    }
+	});
+}
+
+</script>
+
+</html>

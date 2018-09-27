@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>发起流程</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <style type="text/css">
+    html,
+    body {
+        height: 100%;
+    }
+    </style>
+</head>
+
+<body>
+    <header id="header" class="aui-bar aui-bar-nav">
+        <a class="aui-pull-left aui-btn" tapmode onclick="api.closeWin();">
+		        <span class="aui-iconfont aui-icon-left"></span>
+		  </a>
+        <div class="aui-title">
+            发起流程
+        </div>
+        <a class="aui-pull-right aui-btn" tapmode onclick="search_my_workflow()">
+		  	<i class="aui-iconfont aui-icon-search"></i>
+		  </a>
+    </header>
+    <!-- /header -->
+    <div class="aui-content aui-margin-b-15" id="mainbox">
+        <ul class="aui-list aui-list-in" id="demo">
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+var type;
+var userId;
+apiready = function() {
+    api.parseTapmode();
+    var header = $api.byId('header');
+    $api.fixStatusBar(header);
+    var headerPos = $api.offset(header);
+    $api.css(mainbox, 'height:' + (api.winHeight - headerPos.h) + 'px');
+    userId = $api.getStorage("userId");
+    initAjax();
+}
+
+function search_my_workflow() {
+		   var delay = 0;
+            if (api.systemType != 'ios') {
+                delay = 300;
+            }
+            api.openWin({
+                name: 'search_my_workflow',
+                url: './search_my_workflow.html',
+                bounces: false,
+                delay: delay,
+                slidBackEnabled: true,
+                vScrollBarEnabled: false
+            });      	
+}
+
+function initAjax() {
+    api.showProgress();
+    var wrap =$api.byId("demo");
+    wrap.innerHTML = '';
+    var url =host+ '/app/listWorkflow';
+    api.ajax({
+        url: url,
+        method: 'post',
+        data: {
+            values: {
+                userId: userId
+            }
+        }
+    }, function(ret, err) {
+        api.hideProgress();
+        if (ret != null) {
+            if (ret.length > 0) {
+                var html = "";
+                for (var i = 0; i < ret.length; i++) {
+                    html += ' <li class="aui-list-item" tapmode onclick="startProcess(\''+ret[i].key+'start\',\''+ret[i].name+'\')">' +
+                        ' <div class="aui-list-item-inner aui-list-item-arrow">' +
+                        '  <div class="aui-list-item-title">'
+                        // +' <div class="aui-dot" style="position:relative;top:0; right:0"></div>'
+                        +
+                        ret[i].name + '</div>' +
+                        '    <div class="aui-list-item-right">' +
+                        '    </div>' +
+                        '  </div>' +
+                        ' </li>';
+
+                }
+                $api.append(demo, html);
+            }
+        } else {
+            alert('出错了！');
+        }
+    });
+}
+function startProcess(key,name){
+	var delay = 0;
+            if (api.systemType != 'ios') {
+                delay = 300;
+            }
+            api.openWin({
+                name: key,
+                url: './'+key+'.html',
+                bounces: false,
+                delay: delay,
+                pageParam:{
+                	name:name
+                },
+                slidBackEnabled: true,
+                vScrollBarEnabled: false
+            });     
+}
+</script>
+
+</html>

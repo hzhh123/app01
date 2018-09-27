@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>流程图</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <style type="text/css">
+    html,
+    body {
+        height: 100%;
+    }
+    </style>
+</head>
+
+<body>
+    <header id="header" class="aui-bar aui-bar-nav">
+        <a class="aui-pull-left aui-btn" tapmode onclick="api.closeWin();">
+		        <span class="aui-iconfont aui-icon-left"></span>
+		 </a>
+        <div class="aui-title">
+            流程图
+        </div>
+    </header>
+    <div class="aui-content">
+         <ul class="aui-list aui-list-in aui-margin-b-15">
+            <li class="aui-list-header">
+               当前待办任务节点
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner" id="todoDot">
+                    
+                </div>
+            </li>
+        </ul>
+		<img  alt="" id="img">
+	</div>		
+
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript">
+var userId;
+var processInstanceId;
+apiready = function() {
+    api.parseTapmode();
+    var header = $api.byId('header');
+    $api.fixStatusBar(header);
+    var headerPos = $api.offset(header);
+    userId = $api.getStorage("userId");
+    var user = $api.getStorage("user");
+     var pageParam = api.pageParam
+     processInstanceId=pageParam.processInstanceId;
+     api.ajax({
+         url: host+'/app/showHisCurrentView/'+processInstanceId,
+         method: 'post',
+     },function(ret, err){
+         if (ret) {
+            var deploymentId=ret.deploymentId;
+            var diagramResourceName=ret.diagramResourceName;
+            $api.attr(img,'src',host+'/app/showView?deploymentId='+deploymentId+'&diagramResourceName='+diagramResourceName);
+            var tasks=ret.tasks;
+            if(tasks!=null){
+                var taskNames=[];
+                for(var i=0;i<tasks.length;i++){
+                    taskNames.push(tasks[i].taskName);
+                }
+                $api.byId('todoDot').innerHTML=taskNames.join(",");
+            }
+         } else {
+             alert( JSON.stringify( err ) );
+         }
+     });
+     
+}
+
+
+
+</script>
+
+</html>
